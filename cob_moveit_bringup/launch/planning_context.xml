@@ -5,7 +5,7 @@
   <arg name="config_path" default="$(arg pkg_moveit_config)/robots/$(arg robot)/moveit/config"/>
 
   <!-- By default we do not overwrite the URDF. Change the following to true to change the default behavior -->
-  <arg name="load_robot_description" default="false"/>
+  <arg name="load_robot_description" default="true"/>
   <arg name="load_semantic_description" default="true"/>
   <arg name="load_planning_context" default="true"/>
 
@@ -24,6 +24,5 @@
     <arg name="load_semantic_description" value="$(arg load_semantic_description)"/>
     <arg name="load_planning_context" value="$(arg load_planning_context)"/>
   </include>
-
 
 </launch>
