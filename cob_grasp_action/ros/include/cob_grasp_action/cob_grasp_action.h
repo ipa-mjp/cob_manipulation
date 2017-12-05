@@ -69,10 +69,10 @@ private:
 
 public:
 	CobGraspActionServer(std::string group_name): manipulation_group_name(group_name){
-		if(!nh_.getParam(ros::this_node::getName() +"/endeffector_name", end_effector_link))
+		if(!nh_.getParam(ros::this_node::getName() +"/end_effector_name", end_effector_link))
 		{
 			end_effector_link = "gripper_left_base_link";
-			ROS_ERROR("ArmPlanner::initialize --> No endeffector_name available on parameter server");
+			ROS_ERROR("ArmPlanner::initialize --> No end_effector_name available on parameter server");
 		}
 	};
 
