@@ -24,7 +24,7 @@ def show_grasps_client():
     client = actionlib.SimpleActionClient('show_grasps_rviz', cob_grasp_generation.msg.ShowGraspsAction)
     client.wait_for_server()
 
-    object_name = raw_input("Insert object name: ")
+    object_name = "tissue_soft_star" #raw_input("Insert object name: ")
     gripper_type = "sdhx" #raw_input("Insert gripper_type: ")
     gripper_side = ""
     grasp_id = 0
