@@ -1,5 +1,5 @@
 id,object,gripper_finger_1_joint,gripper_finger_2_joint,direction,qw,qx,qy,qz,pos-x,pos-y,pos-z,eps_l1,vol_l1,
-0,tissue_soft_star,0.05,0.75,SIDE,1,0,0,0,0,0,-100,0.01,0.0005,0
+0,tissue_soft_star,0.05,0.75,LEFT,0.7073883,0,0,0.7068252,0,0,0,0.01,0.0005,0
 1,tissue_soft_star,0.05,0.75,SIDE,0,0,0,1,0,0,-100,0.01,0.0005,1
 2,tissue_soft_star,0.05,0.75,SIDE,0,0,1,0,0,0,215,0.01,0.0005,2
 3,tissue_soft_star,0.05,0.75,SIDE,0,1,0,0,0,0,215,0.01,0.0005,3
