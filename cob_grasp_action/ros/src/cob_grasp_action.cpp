@@ -521,10 +521,10 @@ void CobGraspActionServer::fillGraspsOR(unsigned int objectClassId, std::string 
 			//current_grasp.pre_grasp_approach.min_distance = 0.18;
 			//current_grasp.pre_grasp_approach.desired_distance = 0.28;
 
-			ROS_INFO_STREAM("EndeffectorLink: defined as gripper function needs to be updated to get effector_link from the request: "<< end_effector_link);
+			ROS_INFO_STREAM("EndeffectorLink: "<< end_effector_link);
 			current_grasp.pre_grasp_approach.direction.header.frame_id = end_effector_link;
 			current_grasp.pre_grasp_approach.direction.vector.x = 0.0;
-			current_grasp.pre_grasp_approach.direction.vector.y = 0.5;
+			current_grasp.pre_grasp_approach.direction.vector.y = 0.5; //0.5;
 			current_grasp.pre_grasp_approach.direction.vector.z = 1.0;
 			current_grasp.pre_grasp_approach.min_distance = 0.18;
 			current_grasp.pre_grasp_approach.desired_distance = 0.28;
