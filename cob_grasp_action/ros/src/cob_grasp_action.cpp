@@ -59,6 +59,7 @@ void CobGraspActionServer::initialize()
 	map_classid_to_classname[128]="bathdetergent";
 
 	//non-KIT objects
+        map_classid_to_classname[4990]="handsan";
 	map_classid_to_classname[4991]="contact_lens_cleaner";
 	map_classid_to_classname[4992]="handbag";
 	map_classid_to_classname[4993]="hat_whiterock";
