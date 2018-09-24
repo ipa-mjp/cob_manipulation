@@ -358,7 +358,7 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
 
     std::string robot_description = "/robot_description";
     std::string robot_description_semantic = "/robot_description_semantic";
-    std::string distance_service = "/calculate_distance";
+    std::string distance_service = "/arm/calculate_distance";
     std::string register_service = "/register_links";
     std::string unregister_service = "/unregister_links";
     std::string distance_topic = "/obstacle_distances";
