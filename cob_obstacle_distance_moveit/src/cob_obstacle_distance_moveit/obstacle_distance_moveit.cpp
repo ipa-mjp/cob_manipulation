@@ -262,32 +262,58 @@ bool ObstacleDistanceMoveit::calculateSelfCollisionDistanceServiceCallback(cob_c
                                                               cob_control_msgs::GetObstacleDistance::Response &resp)
 {
     std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
-
+    ROS_INFO("HEllo");
     // Links
     for (unsigned int i=0; i< req.links.size(); ++i)
     {
-      std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator selfcollision_it;
-      for (selfcollision_it = robot_links.begin(); selfcollision_it != robot_links.end(); ++selfcollision_it)
+      ROS_INFO_STREAM(req.links.size() << "HEllo1: " << req.objects.size());
+      if (req.objects.size() == 0)
       {
-          std::string robot_self_name = selfcollision_it->first;
+        std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator selfcollision_it;
+        for (selfcollision_it = robot_links.begin(); selfcollision_it != robot_links.end(); ++selfcollision_it)
+        {
+            std::string robot_self_name = selfcollision_it->first;
+            collision_detection::AllowedCollision::Type type;
+            ROS_INFO_STREAM("Self collision links: "<<robot_self_name);
+
+            if(acm_.getEntry(req.links[i], robot_self_name, type))
+            {
+                if(type == collision_detection::AllowedCollision::NEVER)
+                {
+                    const std::shared_ptr<fcl::CollisionObject> robot_self_object = robot_links[robot_self_name];
+                    ROS_INFO_STREAM("CollisionLink: " << robot_self_name << ", Type: " << robot_self_object->getObjectType());
+
+                    resp.link_to_object.push_back(req.links[i] + " to " + robot_self_name);
+                    resp.distances.push_back(getDistanceInfo(robot_links[req.links[i]], robot_self_object).distance);
+                }
+                else
+                {
+                    // This is diagonal of allowed collision matrix
+                }
+            }
+        }
+      }
+      else
+      {
+        for (unsigned int j=0; j< req.objects.size(); ++j)
+        {
           collision_detection::AllowedCollision::Type type;
-          ROS_DEBUG_STREAM("Self collision links: "<<robot_self_name);
-
-          if(acm_.getEntry(req.links[i], robot_self_name, type))
-          {
+          if(acm_.getEntry(req.links[i], req.objects[j], type))
+            {
               if(type == collision_detection::AllowedCollision::NEVER)
-              {
-                  const std::shared_ptr<fcl::CollisionObject> robot_self_object = robot_links[robot_self_name];
-                  ROS_DEBUG_STREAM("CollisionLink: " << robot_self_name << ", Type: " << robot_self_object->getObjectType());
+                {
 
-                  resp.link_to_object.push_back(req.links[i] + " to " + robot_self_name);
-                  resp.distances.push_back(getDistanceInfo(robot_links[req.links[i]], robot_self_object).distance);
-              }
-              else
+                  ROS_INFO_STREAM("CollisionLink: " << req.links[i] << " and " << req.objects[j]);
+
+                  resp.link_to_object.push_back(req.links[i] + " to " + req.objects[j]);
+                  resp.distances.push_back(getDistanceInfo(robot_links[req.links[i]], robot_links[req.objects[j]]).distance);
+                }
+            else
               {
-                  // This is diagonal of allowed collision matrix
+                // This is diagonal of allowed collision matrix
               }
           }
+        }
       }
     }
     return true;
