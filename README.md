@@ -23,3 +23,10 @@ Status: [![Build Status](https://travis-ci.org/ipa320/cob_manipulation.svg?branc
 This is a repository for Care-O-bot manipulation packages.
 
 Installation instructions and tutorials can be found at http://www.care-o-bot.org.
+
+
+# Take in Mind:
+- make sure collision object published on /collision_object topic. If you are using ipa_planning_scene_monitor
+    than make use it shold be publihses on the same topic
+
+- Change topic to get collision object information from here.
