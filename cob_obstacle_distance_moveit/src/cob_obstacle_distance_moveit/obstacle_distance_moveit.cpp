@@ -258,6 +258,41 @@ bool ObstacleDistanceMoveit::calculateDistanceServiceCallback(cob_control_msgs::
     return true;
 }
 
+bool ObstacleDistanceMoveit::calculateSelfCollisionDistanceServiceCallback(cob_control_msgs::GetObstacleDistance::Request &req,
+                                                              cob_control_msgs::GetObstacleDistance::Response &resp)
+{
+    std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
+
+    // Links
+    for (unsigned int i=0; i< req.links.size(); ++i)
+    {
+      std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator selfcollision_it;
+      for (selfcollision_it = robot_links.begin(); selfcollision_it != robot_links.end(); ++selfcollision_it)
+      {
+          std::string robot_self_name = selfcollision_it->first;
+          collision_detection::AllowedCollision::Type type;
+          ROS_DEBUG_STREAM("Self collision links: "<<robot_self_name);
+
+          if(acm_.getEntry(req.links[i], robot_self_name, type))
+          {
+              if(type == collision_detection::AllowedCollision::NEVER)
+              {
+                  const std::shared_ptr<fcl::CollisionObject> robot_self_object = robot_links[robot_self_name];
+                  ROS_DEBUG_STREAM("CollisionLink: " << robot_self_name << ", Type: " << robot_self_object->getObjectType());
+
+                  resp.link_to_object.push_back(req.links[i] + " to " + robot_self_name);
+                  resp.distances.push_back(getDistanceInfo(robot_links[req.links[i]], robot_self_object).distance);
+              }
+              else
+              {
+                  // This is diagonal of allowed collision matrix
+              }
+          }
+      }
+    }
+    return true;
+}
+
 cob_control_msgs::ObstacleDistance ObstacleDistanceMoveit::getDistanceInfo(const std::shared_ptr<fcl::CollisionObject> object_a,
                                                                            const std::shared_ptr<fcl::CollisionObject> object_b)
 {
@@ -359,6 +394,7 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
     std::string robot_description = "/robot_description";
     std::string robot_description_semantic = "/robot_description_semantic";
     std::string distance_service = "/arm/calculate_distance";
+    std::string selfcollision_distance_service = "/arm/calculate_selfcollision_distance";
     std::string register_service = "/register_links";
     std::string unregister_service = "/unregister_links";
     std::string distance_topic = "/obstacle_distances";
@@ -385,6 +421,7 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
     registered_links_.clear();
 
     calculate_obstacle_distance_ = nh_.advertiseService(distance_service, &ObstacleDistanceMoveit::calculateDistanceServiceCallback, this);
+    calculate_selfcollision_distance_ = nh_.advertiseService(selfcollision_distance_service, &ObstacleDistanceMoveit::calculateSelfCollisionDistanceServiceCallback, this);
     register_server_ = nh_.advertiseService(register_service, &ObstacleDistanceMoveit::registerCallback, this);
     unregister_server_ = nh_.advertiseService(unregister_service, &ObstacleDistanceMoveit::unregisterCallback, this);
     distance_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::calculateDistanceTimerCallback, this);
