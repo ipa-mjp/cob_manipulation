@@ -52,6 +52,44 @@ public:
     }
 };
 
+
+bool ObstacleDistanceMoveit::isRobotLink(const std::string &link_name)
+{
+  std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
+
+  std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator robotlink_it;
+  for (robotlink_it = robot_links.begin(); robotlink_it != robot_links.end(); ++robotlink_it)
+  {
+    // both the string are equal
+    if (link_name.compare(robotlink_it->first) == 0)
+    {
+      //break;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool ObstacleDistanceMoveit::updateRegisteredLink()
+{
+
+  std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
+  boost::mutex::scoped_lock lock(registered_links_mutex_);
+
+  std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator registrelink_it;
+  for (registrelink_it = robot_links.begin(); registrelink_it != robot_links.end(); ++registrelink_it)
+  {
+      std::string robot_self_name = registrelink_it->first;
+      std::set<std::string>::iterator it = registered_links_.find(robot_self_name);
+      if (it == registered_links_.end())
+      {
+        std::pair<std::set<std::string>::iterator, bool> ret = registered_links_.insert(robot_self_name);
+        ROS_INFO_STREAM(robot_self_name + " successfully registered");
+      }
+  }
+}
+
+
 void ObstacleDistanceMoveit::updatedScene(planning_scene_monitor::PlanningSceneMonitor::SceneUpdateType type)
 {
     planning_scene_monitor::LockedPlanningSceneRO ps(planning_scene_monitor_);
@@ -81,6 +119,8 @@ void ObstacleDistanceMoveit::updatedScene(planning_scene_monitor::PlanningSceneM
                 static_cast<const collision_detection::CollisionGeometryData *>(world_obj[i]->collisionGeometry()->getUserData());
         this->collision_objects_[collision_object->getID()] = world_obj[i];
     }
+
+    this->updateRegisteredLink();
 }
 
 bool ObstacleDistanceMoveit::planningSceneCallback(moveit_msgs::GetPlanningScene::Request &req, moveit_msgs::GetPlanningScene::Response &res)
@@ -97,6 +137,27 @@ bool ObstacleDistanceMoveit::registerCallback(cob_srvs::SetString::Request &req,
                                               cob_srvs::SetString::Response &res)
 {
     boost::mutex::scoped_lock lock(registered_links_mutex_);
+
+    // check whether already registred or not
+    /*std::set<std::string>::iterator link_it;
+    for (link_it = registered_links_.begin(); link_it!=registered_links_.end(); ++link_it)
+    {
+      if (link_it->compare(req.data) == 0)
+      {
+        res.success = false;
+        res.message = (req.data + " already registered");
+        return false;
+      }
+    }*/
+
+    std::set<std::string>::iterator it = registered_links_.find(req.data);
+    if (it != registered_links_.end())
+    {
+      res.success = false;
+      res.message = (req.data + " already registered");
+      return false;
+    }
+
     std::pair<std::set<std::string>::iterator, bool> ret = registered_links_.insert(req.data);
 
     res.success = true;
@@ -425,23 +486,6 @@ cob_control_msgs::ObstacleDistance ObstacleDistanceMoveit::getDistanceInfo(const
     ROS_DEBUG_STREAM("NearestPointTransformed OBJ_B: \n" << info.nearest_point_obstacle_vector);
 
     return info;
-}
-
-bool ObstacleDistanceMoveit::isRobotLink(const std::string &link_name)
-{
-  std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
-
-  std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator robotlink_it;
-  for (robotlink_it = robot_links.begin(); robotlink_it != robot_links.end(); ++robotlink_it)
-  {
-    // both the string are equal
-    if (link_name.compare(robotlink_it->first) == 0)
-    {
-      //break;
-      return true;
-    }
-  }
-  return false;
 }
 
 ObstacleDistanceMoveit::ObstacleDistanceMoveit()

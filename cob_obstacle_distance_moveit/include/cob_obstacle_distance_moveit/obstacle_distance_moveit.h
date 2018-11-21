@@ -81,6 +81,7 @@ private:
 
     collision_detection::AllowedCollisionMatrix acm_;
 
+    bool updateRegisteredLink(void);
     bool isRobotLink(const std::string& link_name);
 };
 
