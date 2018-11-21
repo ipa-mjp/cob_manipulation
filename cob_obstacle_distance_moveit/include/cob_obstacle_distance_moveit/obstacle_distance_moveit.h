@@ -80,6 +80,8 @@ private:
                                                        const std::shared_ptr<fcl::CollisionObject> object_b);
 
     collision_detection::AllowedCollisionMatrix acm_;
+
+    bool isRobotLink(const std::string& link_name);
 };
 
 #endif  // COB_OBSTACLE_DISTANCE_MOVEIT__OBSTACLE_DISTANCE_H
