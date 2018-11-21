@@ -14,8 +14,9 @@ if __name__ == "__main__":
         req.links.append("arm_3_link")
         req.links.append("arm_4_link")
         req.links.append("arm_5_link")
-        req.links.append("arm_8_link")
+        req.links.append("arm_6_link")
         req.links.append("arm_7_link")
+        req.objects.append("arm_3_link")
         res = client(req)
         print res
     except rospy.ServiceException, e:
