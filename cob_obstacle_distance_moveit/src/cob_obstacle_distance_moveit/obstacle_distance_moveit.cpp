@@ -192,7 +192,8 @@ void ObstacleDistanceMoveit::calculateDistanceTimerCallback(const ros::TimerEven
     std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
     std::map<std::string, std::shared_ptr<fcl::CollisionObject> > collision_objects = this->collision_objects_;
 
-    boost::mutex::scoped_lock lock(registered_links_mutex_);
+    //boost::mutex::scoped_lock lock(registered_links_mutex_);
+    this->updateRegisteredLink();
     cob_control_msgs::ObstacleDistances distance_infos;
     
     planning_scene_monitor::LockedPlanningSceneRO ps(planning_scene_monitor_);
@@ -527,6 +528,7 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
     register_server_ = nh_.advertiseService(register_service, &ObstacleDistanceMoveit::registerCallback, this);
     unregister_server_ = nh_.advertiseService(unregister_service, &ObstacleDistanceMoveit::unregisterCallback, this);
     distance_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::calculateDistanceTimerCallback, this);
+    distance_timer_.start();
     distance_pub_ = nh_.advertise<cob_control_msgs::ObstacleDistances>(distance_topic, 1);
 
     monitored_scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("/monitored_planning_scene", 1);
