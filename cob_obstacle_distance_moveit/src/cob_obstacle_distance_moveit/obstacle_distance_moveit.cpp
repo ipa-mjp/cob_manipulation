@@ -520,6 +520,8 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
     planning_scene_monitor_->startStateMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_JOINT_STATES_TOPIC,
                                                planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC);
     planning_scene_monitor_->addUpdateCallback(boost::bind(&ObstacleDistanceMoveit::updatedScene, this, _1));
+    //this->updatedScene(planning_scene_monitor::PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE);
+
 
     registered_links_.clear();
 
@@ -534,4 +536,6 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
     monitored_scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("/monitored_planning_scene", 1);
     monitored_scene_server_ = nh_.advertiseService("/get_planning_scene", &ObstacleDistanceMoveit::planningSceneCallback, this);
     planning_scene_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::planningSceneTimerCallback, this);
+
+    ROS_INFO_NAMED("ObstacleDistanceMoveit::","%s INITIALIZED!!",ros::this_node::getName().c_str());
 }
