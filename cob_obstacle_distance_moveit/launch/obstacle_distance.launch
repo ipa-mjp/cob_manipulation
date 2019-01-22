@@ -2,10 +2,16 @@
 <launch>
   <arg name="robot" default="$(env ROBOT)"/>
   <arg name="pkg_moveit_config" default="$(find ipa_moveit_config)"/>
+  <arg name="load_robot_description" default="false"/>
   <arg name="config_path" default="$(arg pkg_moveit_config)/robots/$(arg robot)/moveit/config"/>
 
   <arg name="use_sensors" default="false"/>
   <arg name="node_name" value="obstacle_distance_moveit"/>
+
+  <include file="$(find ipa_moveit_bringup)/launch/planning_context.xml">
+    <arg name="robot" value="$(arg robot)"/>
+    <arg name="load_robot_description" value="$(arg load_robot_description)"/>
+  </include>
 
   <!-- Load Sensor Input Information -->
   <include ns="$(arg node_name)" file="$(find ipa_moveit_bringup)/launch/sensor_manager.xml">
