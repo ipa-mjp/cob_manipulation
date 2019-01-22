@@ -8,6 +8,7 @@
   <arg name="use_sensors" default="false"/>
   <arg name="node_name" value="obstacle_distance_moveit"/>
 
+  <!-- Load Planning context Information called Robot Description -->
   <include file="$(find ipa_moveit_bringup)/launch/planning_context.xml">
     <arg name="robot" value="$(arg robot)"/>
     <arg name="load_robot_description" value="$(arg load_robot_description)"/>
