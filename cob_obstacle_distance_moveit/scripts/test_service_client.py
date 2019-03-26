@@ -35,7 +35,7 @@ if __name__ == "__main__":
         #req.links.append("link_3")
         #req.links.append("link_4")
         #req.links.append("link_5")
-        req.objects.append("box0_box")
+        req.objects.append("box0")
         res = client(req)
         print res
     except rospy.ServiceException, e:

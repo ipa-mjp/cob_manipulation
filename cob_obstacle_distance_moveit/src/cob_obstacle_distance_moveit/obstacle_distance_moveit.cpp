@@ -221,6 +221,9 @@ void ObstacleDistanceMoveit::calculateDistanceTimerCallback(const ros::TimerEven
                 continue;
             }
 
+            ROS_INFO_STREAM("collision object name: " << collision_object_name);
+            ROS_INFO_STREAM("robot link name: " << robot_link_name);
+
             cob_control_msgs::ObstacleDistance info;
             info = getDistanceInfo(robot_object, collision_object);
 
@@ -228,40 +231,51 @@ void ObstacleDistanceMoveit::calculateDistanceTimerCallback(const ros::TimerEven
             info.header.stamp = event.current_real;
             info.link_of_interest = robot_link_name;
             info.obstacle_id = collision_object_name;
+            ROS_WARN_STREAM("distance: " << info.distance);
 
-            distance_infos.distances.push_back(info);
-        }
-
-        std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator selfcollision_it;
-        for (selfcollision_it = robot_links.begin(); selfcollision_it != robot_links.end(); ++selfcollision_it)
-        {
-            std::string robot_self_name = selfcollision_it->first;
-            collision_detection::AllowedCollision::Type type;
-
-            if(acm_.getEntry(robot_link_name, robot_self_name, type))
+            if (info.distance > 3.0)
             {
-                if(type == collision_detection::AllowedCollision::NEVER)
-                {
-                    const std::shared_ptr<fcl::CollisionObject> robot_self_object = robot_links[robot_self_name];
-                    ROS_DEBUG_STREAM("CollisionLink: " << robot_self_name << ", Type: " << robot_self_object->getObjectType());
-
-                    cob_control_msgs::ObstacleDistance info;
-                    info = getDistanceInfo(robot_object, robot_self_object);
-
-                    info.header.frame_id = planning_frame;
-                    info.header.stamp = event.current_real;
-                    info.link_of_interest = robot_link_name;
-                    info.obstacle_id = robot_self_name;
-
-                    distance_infos.distances.push_back(info);
-                }
-                else
-                {
-                    // This is diagonal of allowed collision matrix
-                }
+              info.nearest_point_obstacle_vector.x = 100;
+              info.nearest_point_obstacle_vector.y = 100;
+              info.nearest_point_obstacle_vector.z = 100;
             }
+
+           distance_infos.distances.push_back(info);
         }
+
+//        std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator selfcollision_it;
+//        for (selfcollision_it = robot_links.begin(); selfcollision_it != robot_links.end(); ++selfcollision_it)
+//        {
+//            std::string robot_self_name = selfcollision_it->first;
+//            collision_detection::AllowedCollision::Type type;
+
+//            if(acm_.getEntry(robot_link_name, robot_self_name, type))
+//            {
+//                if(type == collision_detection::AllowedCollision::NEVER)
+//                {
+//                    const std::shared_ptr<fcl::CollisionObject> robot_self_object = robot_links[robot_self_name];
+//                    ROS_DEBUG_STREAM("CollisionLink: " << robot_self_name << ", Type: " << robot_self_object->getObjectType());
+
+//                    cob_control_msgs::ObstacleDistance info;
+//                    info = getDistanceInfo(robot_object, robot_self_object);
+
+//                    info.header.frame_id = planning_frame;
+//                    info.header.stamp = event.current_real;
+//                    info.link_of_interest = robot_link_name;
+//                    info.obstacle_id = robot_self_name;
+
+//                    //ROS_WARN_STREAM("self-distance: " << info.distance);
+
+//                    //distance_infos.distances.push_back(info);
+//                }
+//                else
+//                {
+//                    // This is diagonal of allowed collision matrix
+//                }
+//            }
+//        }
     }
+    ROS_ERROR_STREAM("Tot vec size: "<< distance_infos.distances.size());
     distance_pub_.publish(distance_infos);
 }
 
@@ -493,6 +507,7 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
 {
     MAXIMAL_MINIMAL_DISTANCE = 5.0; //m
     double update_frequency = 50.0; //Hz
+    bool error = false;
 
     std::string robot_description = "/robot_description";
     std::string robot_description_semantic = "/robot_description_semantic";
@@ -510,32 +525,45 @@ ObstacleDistanceMoveit::ObstacleDistanceMoveit()
 
     //Initialize planning scene monitor
     boost::shared_ptr<tf::TransformListener> tf_listener_(new tf::TransformListener(ros::Duration(2.0)));
-    planning_scene_monitor_ = std::make_shared<planning_scene_monitor::PlanningSceneMonitor>(robot_description, tf_listener_);
+    try
+    {
+        planning_scene_monitor_ = std::make_shared<planning_scene_monitor::PlanningSceneMonitor>(robot_description, tf_listener_);
+    } catch (ros::InvalidNameException)
+    {
+        error = true;
+        ROS_ERROR_STREAM("Planning scene monitor failed");
+        ros::shutdown();
+    }
 
-    planning_scene_monitor_->setStateUpdateFrequency(update_frequency);
-    planning_scene_monitor_->startSceneMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_TOPIC);
-    planning_scene_monitor_->startWorldGeometryMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_COLLISION_OBJECT_TOPIC,
-                                                       planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_WORLD_TOPIC,
-                                                       true);  // load_octomap_monitor
-    planning_scene_monitor_->startStateMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_JOINT_STATES_TOPIC,
-                                               planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC);
-    planning_scene_monitor_->addUpdateCallback(boost::bind(&ObstacleDistanceMoveit::updatedScene, this, _1));
-    //this->updatedScene(planning_scene_monitor::PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE);
+    //planning_scene_monitor_ = std::make_shared<planning_scene_monitor::PlanningSceneMonitor>(robot_description, tf_listener_);
+    if (!error)
+    {
+      planning_scene_monitor_->setStateUpdateFrequency(update_frequency);
+      planning_scene_monitor_->startSceneMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_TOPIC);
+      planning_scene_monitor_->startWorldGeometryMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_COLLISION_OBJECT_TOPIC,
+                                                         planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_WORLD_TOPIC,
+                                                         true);  // load_octomap_monitor
+      planning_scene_monitor_->startStateMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_JOINT_STATES_TOPIC,
+                                                 planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC);
+      planning_scene_monitor_->addUpdateCallback(boost::bind(&ObstacleDistanceMoveit::updatedScene, this, _1));
+      //this->updatedScene(planning_scene_monitor::PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE);
 
 
-    registered_links_.clear();
+      registered_links_.clear();
 
-    calculate_obstacle_distance_ = nh_.advertiseService(distance_service, &ObstacleDistanceMoveit::calculateDistanceServiceCallback, this);
-    calculate_selfcollision_distance_ = nh_.advertiseService(selfcollision_distance_service, &ObstacleDistanceMoveit::calculateSelfCollisionDistanceServiceCallback, this);
-    register_server_ = nh_.advertiseService(register_service, &ObstacleDistanceMoveit::registerCallback, this);
-    unregister_server_ = nh_.advertiseService(unregister_service, &ObstacleDistanceMoveit::unregisterCallback, this);
-    distance_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::calculateDistanceTimerCallback, this);
-    distance_timer_.start();
-    distance_pub_ = nh_.advertise<cob_control_msgs::ObstacleDistances>(distance_topic, 1);
+      calculate_obstacle_distance_ = nh_.advertiseService(distance_service, &ObstacleDistanceMoveit::calculateDistanceServiceCallback, this);
+      calculate_selfcollision_distance_ = nh_.advertiseService(selfcollision_distance_service, &ObstacleDistanceMoveit::calculateSelfCollisionDistanceServiceCallback, this);
+      register_server_ = nh_.advertiseService(register_service, &ObstacleDistanceMoveit::registerCallback, this);
+      unregister_server_ = nh_.advertiseService(unregister_service, &ObstacleDistanceMoveit::unregisterCallback, this);
+      distance_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::calculateDistanceTimerCallback, this);
+      distance_timer_.start();
+      distance_pub_ = nh_.advertise<cob_control_msgs::ObstacleDistances>(distance_topic, 1);
 
-    monitored_scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("/monitored_planning_scene", 1);
-    monitored_scene_server_ = nh_.advertiseService("/get_planning_scene", &ObstacleDistanceMoveit::planningSceneCallback, this);
-    planning_scene_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::planningSceneTimerCallback, this);
+      monitored_scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("/monitored_planning_scene", 1);
+      monitored_scene_server_ = nh_.advertiseService("/get_planning_scene", &ObstacleDistanceMoveit::planningSceneCallback, this);
+      planning_scene_timer_ = nh_.createTimer(ros::Duration(1.0/update_frequency), &ObstacleDistanceMoveit::planningSceneTimerCallback, this);
 
-    ROS_INFO_NAMED("ObstacleDistanceMoveit::","%s INITIALIZED!!",ros::this_node::getName().c_str());
+      ROS_INFO_NAMED("ObstacleDistanceMoveit::","%s INITIALIZED!!",ros::this_node::getName().c_str());
+    }
+
 }

@@ -44,7 +44,6 @@ public:
     void obstacleDistancesCallback(const cob_control_msgs::ObstacleDistances::ConstPtr& msg)
     {
         visualization_msgs::MarkerArray marker_array;
-
         for(unsigned int i = 0; i < msg->distances.size(); i++)
         {
             cob_control_msgs::ObstacleDistance info = msg->distances[i];
@@ -65,14 +64,16 @@ public:
             start.x = info.nearest_point_obstacle_vector.x;
             start.y = info.nearest_point_obstacle_vector.y;
             start.z = info.nearest_point_obstacle_vector.z;
+            ROS_INFO_STREAM("start: " << start);
 
             geometry_msgs::Point end;
             end.x = info.nearest_point_frame_vector.x;
             end.y = info.nearest_point_frame_vector.y;
             end.z = info.nearest_point_frame_vector.z;
+            ROS_INFO_STREAM("end: " << end);
 
             marker_vector.color.a = 1.0;
-            marker_vector.color.g = 1.0;
+            marker_vector.color.b = 1.0;
 
             marker_vector.points.push_back(start);
             marker_vector.points.push_back(end);
