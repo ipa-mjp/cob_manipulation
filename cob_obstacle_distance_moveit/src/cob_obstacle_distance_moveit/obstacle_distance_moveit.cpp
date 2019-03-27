@@ -201,6 +201,10 @@ void ObstacleDistanceMoveit::calculateDistanceTimerCallback(const ros::TimerEven
 
     std::string planning_frame = planning_scene_ptr->getPlanningFrame();
 
+    std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator obj_it;
+    for (obj_it = collision_objects.begin(); obj_it != collision_objects.end(); ++obj_it)
+    {
+
     std::set<std::string>::iterator link_it;
     for (link_it = registered_links_.begin(); link_it!=registered_links_.end(); ++link_it)
     {
@@ -208,9 +212,9 @@ void ObstacleDistanceMoveit::calculateDistanceTimerCallback(const ros::TimerEven
         const std::shared_ptr<fcl::CollisionObject> robot_object = robot_links[robot_link_name];
         ROS_DEBUG_STREAM("RobotLink: " << robot_link_name << ", Type: " << robot_object->getObjectType());
 
-        std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator obj_it;
-        for (obj_it = collision_objects.begin(); obj_it != collision_objects.end(); ++obj_it)
-        {
+//        std::map<std::string, std::shared_ptr<fcl::CollisionObject> >::iterator obj_it;
+//        for (obj_it = collision_objects.begin(); obj_it != collision_objects.end(); ++obj_it)
+//        {
             std::string collision_object_name = obj_it->first;
             const std::shared_ptr<fcl::CollisionObject> collision_object = collision_objects[collision_object_name];
             ROS_DEBUG_STREAM("CollisionLink: " << collision_object_name << ", Type: " << collision_object->getObjectType());
