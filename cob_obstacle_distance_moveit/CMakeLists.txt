@@ -20,7 +20,11 @@ find_package(catkin REQUIRED
 find_package(Boost REQUIRED COMPONENTS)
 find_package(Eigen REQUIRED)
 add_definitions(${EIGEN_DEFINITIONS})
-find_package(fcl REQUIRED)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBFCL REQUIRED fcl)
+find_library(LIBFCL_LIBRARIES_FULL ${LIBFCL_LIBRARIES} ${LIBFCL_LIBRARY_DIRS})
+set(fcl_LIBRARIES "${LIBFCL_LIBRARIES_FULL}")
 
 catkin_package()
 
@@ -33,7 +37,7 @@ include_directories(
 
 add_library(obstacle_distance_moveit src/${PROJECT_NAME}/obstacle_distance_moveit.cpp)
 add_dependencies(obstacle_distance_moveit ${catkin_EXPORTED_TARGETS})
-target_link_libraries(obstacle_distance_moveit ${catkin_LIBRARIES} ${fcl_LIBRARIES})
+target_link_libraries(obstacle_distance_moveit ${catkin_LIBRARIES} ${FCL_LIBRARIES})
 
 add_executable(obstacle_distance_node src/obstacle_distance_moveit_node.cpp)
 add_dependencies(obstacle_distance_node ${catkin_EXPORTED_TARGETS})
