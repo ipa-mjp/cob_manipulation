@@ -25,7 +25,7 @@ if __name__ == "__main__":
     rospy.init_node("simple_obstacle_pub")
     root_frame = "world"
 
-    pub = rospy.Publisher("/collision_object", CollisionObject, queue_size = 1)
+    pub = rospy.Publisher("/collision_object", CollisionObject, queue_size = 1000)
     rospy.sleep(1.0)
 
     # Publish a simple sphere
@@ -36,9 +36,9 @@ if __name__ == "__main__":
     #x.operation = CollisionObject.REMOVE
     sphere = SolidPrimitive()
     sphere.type = SolidPrimitive.BOX
-    sphere.dimensions.append(0.001)  # radius
-    sphere.dimensions.append(0.001)  # radius
-    sphere.dimensions.append(0.001)  # radius
+    sphere.dimensions.append(0.1)  # radius
+    sphere.dimensions.append(0.1)  # radius
+    sphere.dimensions.append(0.1)  # radius
     x.primitives.append(sphere)
 
     pose = Pose()
@@ -51,6 +51,6 @@ if __name__ == "__main__":
     pose.orientation.w = 1.0;
     x.primitive_poses.append(pose)
     pub.publish(x)
-    rospy.sleep(1.0)
+    rospy.sleep(5.0)
     
     rospy.loginfo("Done")
