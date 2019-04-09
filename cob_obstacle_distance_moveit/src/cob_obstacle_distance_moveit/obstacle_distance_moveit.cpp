@@ -104,8 +104,8 @@ void ObstacleDistanceMoveit::updatedScene(planning_scene_monitor::PlanningSceneM
     CreateCollisionRobot collision_robot(robot_state.getRobotModel());
     collision_robot.getCollisionObject(robot_state, robot_obj);
 
-    this->robot_links_.clear();
-    this->collision_objects_.clear();
+    //this->robot_links_.clear();
+    //this->collision_objects_.clear();
 
     for (unsigned int i = 0; i < robot_obj.size(); i++)
     {
