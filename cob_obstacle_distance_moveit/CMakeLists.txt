@@ -3,6 +3,9 @@ project(cob_obstacle_distance_moveit)
 
 add_compile_options(-std=c++11)
 
+# enable debugging
+set(ROS_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Set catkin run and build packages
 SET(CATKIN_RUN_PACKAGES
