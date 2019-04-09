@@ -59,6 +59,7 @@ private:
     std::map<std::string, std::shared_ptr<fcl::CollisionObject> > collision_objects_;
     std::set< std::string > registered_links_;
     boost::mutex registered_links_mutex_;
+    boost::mutex robot_links_mutex_;
 
     ros::ServiceServer calculate_selfcollision_distance_;
     bool calculateSelfCollisionDistanceServiceCallback(cob_control_msgs::GetObstacleDistance::Request &req,
