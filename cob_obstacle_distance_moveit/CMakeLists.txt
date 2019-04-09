@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cob_obstacle_distance_moveit)
 
-find_package(catkin REQUIRED
-    COMPONENTS
-        cmake_modules
+add_compile_options(-std=c++11)
+
+
+# Set catkin run and build packages
+SET(CATKIN_RUN_PACKAGES
         cob_control_msgs
         cob_srvs
         eigen_conversions
@@ -14,25 +16,44 @@ find_package(catkin REQUIRED
         moveit_ros_planning_interface
         roscpp
         tf
-        tf_conversions
+	tf_conversions
 )
 
+# set cakin build package
+SET(CATKIN_BUILD_PACKAGES
+  ${CATKIN_RUN_PACKAGES}
+  cmake_modules
+)
+
+## Find catkin macros and libraries
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_BUILD_PACKAGES})
+
 find_package(Boost REQUIRED COMPONENTS)
+
+message("Finding EIGEN library")
 find_package(Eigen REQUIRED)
+
 add_definitions(${EIGEN_DEFINITIONS})
+
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBFCL REQUIRED fcl)
 find_library(LIBFCL_LIBRARIES_FULL ${LIBFCL_LIBRARIES} ${LIBFCL_LIBRARY_DIRS})
 set(fcl_LIBRARIES "${LIBFCL_LIBRARIES_FULL}")
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS include
+  #LIBRARIES pd_motion_control
+  CATKIN_DEPENDS ${CATKIN_RUN_PACKAGES}
+  DEPENDS Boost 
+)
 
 
 ### Build ###
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIRS}
 )
 
 add_library(obstacle_distance_moveit src/${PROJECT_NAME}/obstacle_distance_moveit.cpp)
@@ -70,3 +91,4 @@ install(PROGRAMS scripts/test_obstacle_publisher.py scripts/test_registration_cl
 install(DIRECTORY files launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
