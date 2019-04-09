@@ -66,8 +66,8 @@ void ObstacleDistanceMoveit::updatedScene(planning_scene_monitor::PlanningSceneM
     CreateCollisionRobot collision_robot(robot_state.getRobotModel());
     collision_robot.getCollisionObject(robot_state, robot_obj);
 
-    this->robot_links_.clear();
-    this->collision_objects_.clear();
+    //this->robot_links_.clear();
+    //this->collision_objects_.clear();
 
     for (unsigned int i = 0; i < robot_obj.size(); i++)
     {
@@ -129,6 +129,7 @@ bool ObstacleDistanceMoveit::unregisterCallback(cob_srvs::SetString::Request &re
 
 void ObstacleDistanceMoveit::calculateDistanceTimerCallback(const ros::TimerEvent& event)
 {
+    ROS_DEBUG_STREAM("size: " << event.current_real << "  ... "<< robot_links_.size());
     std::map<std::string, std::shared_ptr<fcl::CollisionObject> > robot_links = this->robot_links_;
     std::map<std::string, std::shared_ptr<fcl::CollisionObject> > collision_objects = this->collision_objects_;
 
