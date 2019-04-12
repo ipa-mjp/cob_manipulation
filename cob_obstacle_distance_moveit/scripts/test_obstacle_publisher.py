@@ -30,15 +30,15 @@ if __name__ == "__main__":
 
     # Publish a simple sphere
     x = CollisionObject()
-    x.id = "sphere"
+    x.id = "box"
     x.header.frame_id = root_frame
     x.operation = CollisionObject.ADD
     #x.operation = CollisionObject.REMOVE
     sphere = SolidPrimitive()
     sphere.type = SolidPrimitive.BOX
-    sphere.dimensions.append(0.1)  # radius
-    sphere.dimensions.append(0.1)  # radius
-    sphere.dimensions.append(0.1)  # radius
+    sphere.dimensions.append(0.05)  # radius
+    sphere.dimensions.append(0.05)  # radius
+    sphere.dimensions.append(0.05)  # radius
     x.primitives.append(sphere)
 
     pose = Pose()
@@ -52,5 +52,31 @@ if __name__ == "__main__":
     x.primitive_poses.append(pose)
     pub.publish(x)
     rospy.sleep(5.0)
-    
+    rospy.loginfo("Done")
+
+#    # Publish a simple sphere
+#    x = CollisionObject()
+#    x.id = "sphere"
+#    x.header.frame_id = root_frame
+#    x.operation = CollisionObject.ADD
+#    #x.operation = CollisionObject.REMOVE
+#    sphere = SolidPrimitive()
+#    sphere.type = SolidPrimitive.BOX
+#    sphere.dimensions.append(0.001)  # radius
+#    sphere.dimensions.append(0.001)  # radius
+#    sphere.dimensions.append(0.001)  # radius
+#    x.primitives.append(sphere)
+
+#    pose = Pose()
+#    pose.position.x = 1.0
+#    pose.position.y = 1.0
+#    pose.position.z = 1.0
+#    pose.orientation.x = 0.0;
+#    pose.orientation.y = 0.0;
+#    pose.orientation.z = 0.0;
+#    pose.orientation.w = 1.0;
+#    x.primitive_poses.append(pose)
+#    pub.publish(x)
+#    rospy.sleep(1.0)
+
     rospy.loginfo("Done")

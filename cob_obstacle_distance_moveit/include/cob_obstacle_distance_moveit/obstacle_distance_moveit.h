@@ -30,6 +30,10 @@
 #include <moveit_msgs/PlanningScene.h>
 #include <moveit_msgs/GetPlanningScene.h>
 
+#include <octomap_msgs/Octomap.h>
+#include <octomap_msgs/OctomapWithPose.h>
+#include <octomap_msgs/conversions.h>
+
 #include <cob_srvs/SetString.h>
 #include <cob_control_msgs/ObstacleDistances.h>
 #include <cob_control_msgs/GetObstacleDistance.h>
@@ -84,6 +88,7 @@ private:
 
     bool updateRegisteredLink(void);
     bool isRobotLink(const std::string& link_name);
+
 };
 
 #endif  // COB_OBSTACLE_DISTANCE_MOVEIT__OBSTACLE_DISTANCE_H

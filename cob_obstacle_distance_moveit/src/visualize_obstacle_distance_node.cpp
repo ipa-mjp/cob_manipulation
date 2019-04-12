@@ -32,8 +32,8 @@ public:
 
     int init()
     {
-        marker_pub_ = this->nh_.advertise<visualization_msgs::MarkerArray>("obstacle_distance/distance_markers", 1, true);
-        obstacle_distances_sub_ = this->nh_.subscribe("obstacle_distances", 1, &DebugObstacleDistance::obstacleDistancesCallback, this);
+        marker_pub_ = this->nh_.advertise<visualization_msgs::MarkerArray>("obstacle_distance/distance_markers", 1000, true);
+        obstacle_distances_sub_ = this->nh_.subscribe("obstacle_distances", 1000, &DebugObstacleDistance::obstacleDistancesCallback, this);
 
         ros::Duration(1.0).sleep();
         ROS_WARN("Debug initialized.");
@@ -64,13 +64,13 @@ public:
             start.x = info.nearest_point_obstacle_vector.x;
             start.y = info.nearest_point_obstacle_vector.y;
             start.z = info.nearest_point_obstacle_vector.z;
-            ROS_INFO_STREAM("start: " << start);
+            //ROS_INFO_STREAM("start: " << start);
 
             geometry_msgs::Point end;
             end.x = info.nearest_point_frame_vector.x;
             end.y = info.nearest_point_frame_vector.y;
             end.z = info.nearest_point_frame_vector.z;
-            ROS_INFO_STREAM("end: " << end);
+            //ROS_INFO_STREAM("end: " << end);
 
             marker_vector.color.a = 1.0;
             marker_vector.color.b = 1.0;
